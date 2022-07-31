@@ -44,7 +44,33 @@ const NpcBuilder = function(npcName) {
         Loved: [],
         Liked: [],
         Disliked: [],
-        Hated: []
+        Hated: [],
+        town: null,
+        get happiness(){
+            let value = 100.0;
+            if (!this.town) return 1000;
+            
+            if (this.town.npcs.length > 3) {
+                value *= Math.pow(1.04, this.town.npcs.length - 2);
+            }
+            
+            if (this.town.npcs.length <= 2) {
+                value *= 0.9;
+            }
+            
+            let townContent = this.town.biomes.concat(this.town.npcs.map(n => n.Name));
+            townContent.filter(c => this.Loved.includes(c)).forEach(c => value *= 0.9);
+            townContent.filter(c => this.Liked.includes(c)).forEach(c => value *= 0.95);
+            townContent.filter(c => this.Disliked.includes(c)).forEach(c => value *= 1.05);
+            townContent.filter(c => this.Hated.includes(c)).forEach(c => value *= 1.1);
+            
+            let mod = value % 5;
+            let rounding = mod < 2.5 ? 0 : 5;
+            value = value - mod + rounding;
+            value = value < 75 ? 75 : value;
+            value = value > 150 ? 150 : value; 
+            return value.toFixed(0);
+        }
     };
     
     this.loves = function(things) { this.npc.Loved = this.npc.Loved.concat(Array.from(arguments)); return this; };

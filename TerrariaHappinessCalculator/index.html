@@ -2,6 +2,8 @@
 <html>
 <head>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.20.0/vuedraggable.umd.min.js"></script>
     <script src="model.js"></script>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="images/Favicon.ico">
@@ -21,20 +23,15 @@
     Vue.component('town', {
         template: `
         <div class="ui-frame">
-            <div style='display: flex; width:550px; justify-content: space-evenly'>
-                <img width="35px" v-for='biome in availableBiomes' :src="'images/' + biome + '.png'" :title="biome" :class="{ disabled: !biomes.includes(biome) }" v-on:click="toggleBiome(biome)" style="cursor: pointer;" />
-                
-                <select name="npcs" v-model='selectedNpc' style='margin-left: 20px'>
-                    <option v-for='npc in availableNpcs' :value="npc">{{npc.Name}}</option>
-                </select>
-                <button v-on:click='addSelectedNpc()'>Add NPC</button>
+            <div class="biomes">
+                <img width="35px" v-for='biome in availableBiomes' :src="'images/' + biome + '.png'" :title="biome" :class="{ disabled: !town.biomes.includes(biome) }" v-on:click="toggleBiome(biome)" style="cursor: pointer;" />
             </div>
             
-            <div style="display: flex; flex-direction: row; flex-wrap: wrap;">
-                <div class="npc" v-for='npc in npcs'>
-                    <img :src="'images/' + npc.Name.replace(' ', '') + '.png'" />
+            <draggable v-model="town.npcs" group="npcs" class="town-npcs" @add="npcSettled">
+                <div class="npc" v-for='npc in town.npcs' :key="npc.Name">
+                    <img :src="'images/' + npc.Name.replace(' ', '') + '.png'" class="img" />
                     <div class="name">{{npc.Name}}</div>
-                    <div :class="{ happy: happiness[npc.Name] <= 85, sad: happiness[npc.Name] > 100 }">{{happiness[npc.Name]}}%</div>
+                    <div :class="{ happy: npc.happiness <= 85, sad: npc.happiness > 100 }">{{npc.happiness}}%</div>
                     <div class="remove" v-on:click="removeNpc(npc)" title="Remove from town">X</div>
                     <div class="tooltip">
                         <div>Loves: <img v-for="love in npc.Loved" :src="'images/emotes/'+love.replace(' ', '')+'.png'" :title="love"></div>
@@ -43,90 +40,37 @@
                         <div>Hates: <img v-for="hate in npc.Hated" :src="'images/emotes/'+hate.replace(' ', '')+'.png'" :title="hate"></div>
                     </div>
                 </div>
-            </div>
+            </draggable>
         </div>
         `,
-        created: function() {
-            if (this.id === 1) {
-                this.npcs.push(NpcModels.filter(npc => npc.Name === 'Guide')[0]);
-                this.settledNpcs.push(NpcModels.filter(npc => npc.Name === 'Guide')[0]);
-                this.biomes.push(Biomes.Forest);
-            }
-        },
-        data: function() {
-            return {
-                selectedNpc: '',
-                selectedBiome: '',
-                
-                npcs: [],
-                biomes: []
-            };
-        },
         props: {
-            settledNpcs: Array,
-            id: Number
+            town: Object
         },
         methods: {
-            addSelectedNpc: function() {
-                if (this.selectedNpc) {
-                    this.settledNpcs.push(this.selectedNpc)
-                    this.npcs.push(this.selectedNpc);
-                    this.selectedNpc = '';
-                }
-            },
-            removeNpc: function(npc) {
-                this.settledNpcs.splice(this.settledNpcs.indexOf(npc), 1);
-                this.npcs.splice(this.npcs.indexOf(npc), 1);
+            removeNpc(npc) {
+                this.$emit('remove', this.town, npc);
             },
             toggleBiome: function(biome) {
-                let index = this.biomes.indexOf(biome);
+                let index = this.town.biomes.indexOf(biome);
                 if (index < 0)
                 {
-                    this.biomes.push(biome);
+                    this.town.biomes.push(biome);
                 } else {
-                    this.biomes.splice(index, 1);
+                    this.town.biomes.splice(index, 1);
                 }
             },
             imageUrl(npc) {
                 return 'images/' + npc.Name.replace(' ', '') + '.png';
+            },
+            npcSettled(){
+                // unfortunately vue-draggable don't seem to provide a way to determine who exactly was added
+                // updating town for everyone as a workaround, for existing npcs this shouldn't do anything
+                this.town.npcs.forEach(npc => npc.town = this.town);
             }
         },
         computed: {
             availableBiomes: function() {
                 return Object.values(Biomes);
-            },
-            availableNpcs: function() {
-                return NpcModels.filter(npc => !this.settledNpcs.includes(npc));
-            },
-            happiness: function() {
-                let npcsHappiness = {};
-                
-                this.npcs.forEach(npc => {
-                    let value = 100.0;
-                    
-                    if (this.npcs.length > 3) {
-                        value *= Math.pow(1.04, this.npcs.length - 2);
-                    }
-                    
-                    if (this.npcs.length <= 2) {
-                        value *= 0.9;
-                    }
-                    
-                    let townContent = this.biomes.concat(this.npcs.map(n => n.Name));
-                    townContent.filter(c => npc.Loved.includes(c)).forEach(c => value *= 0.9);
-                    townContent.filter(c => npc.Liked.includes(c)).forEach(c => value *= 0.95);
-                    townContent.filter(c => npc.Disliked.includes(c)).forEach(c => value *= 1.05);
-                    townContent.filter(c => npc.Hated.includes(c)).forEach(c => value *= 1.1);
-                    
-                    let mod = value % 5;
-                    let rounding = mod < 2.5 ? 0 : 5;
-                    value = value - mod + rounding;
-                    value = value < 75 ? 75 : value;
-                    value = value > 150 ? 150 : value; 
-                    npcsHappiness[npc.Name] = value.toFixed(0);
-                });
-                
-                return npcsHappiness;
             }
         }
     });
@@ -134,16 +78,47 @@
     let app = new Vue({
         el: '#app',
         template:`
-        <div>
-            <town v-for="i in towns" :settledNpcs="settledNpcs" :id="i"></town>
-            <div v-on:click="towns++" class="ui-frame transparent">
-                <div>Add next town</div>
-            </div>
+        <div class="app">
+            <draggable v-model="towns" group="towns" class="towns">
+                <town v-for="town in towns" :town="town" :key="town.id" @remove="evict"></town>
+                <div slot="footer" v-on:click="addTown" class="ui-frame transparent">
+                    <div>Add next town</div>
+                </div>
+            </draggable>
+            <draggable v-model="homeless" group="npcs" class="homeless" @add="refreshHomeless">
+                <div class="npc" v-for='npc in homeless' :key="npc.Name">
+                    <img :src="'images/' + npc.Name.replace(' ', '') + '.png'" class="img" />
+                    <div class="name">{{npc.Name}}</div>
+                </div>
+            </draggable>
         </div>
         `,
         data: {
-            towns: 1,
-            settledNpcs: []                
+            homeless: NpcModels,
+            towns: [{
+                id: Date.now(), //use date of creation as an unique id
+                npcs: [],
+                biomes: []
+            }]
+        },
+        methods: {
+            addTown(){
+                this.towns.push({
+                    id: Date.now(), //use date of creation as an unique id
+                    npcs: [],
+                    biomes: []
+                });
+            },
+            evict(town, npc){
+                npc.town = null;
+                town.npcs.splice(town.npcs.indexOf(npc), 1);
+                this.homeless.push(npc);
+            },
+            refreshHomeless(){
+                // unfortunately vue-draggable don't seem to provide a way to determine who exactly was added
+                // updating town for everyone as a workaround, for existing npcs this shouldn't do anything
+                this.homeless.forEach(npc => npc.town = null);
+            }
         }
     });
 </script>
