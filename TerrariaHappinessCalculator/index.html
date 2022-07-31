@@ -34,10 +34,16 @@
                     <div :class="{ happy: npc.happiness <= 85, sad: npc.happiness > 100 }">{{npc.happiness}}%</div>
                     <div class="remove" v-on:click="removeNpc(npc)" title="Remove from town">X</div>
                     <div class="tooltip">
-                        <div>Loves: <img v-for="love in npc.Loved" :src="'images/emotes/'+love.replace(' ', '')+'.png'" :title="love"></div>
+                        <div v-if="npc.isPrincess">Loves: everyone</div>
+                        <div v-else>Loves: <img v-for="love in npc.Loved" :src="'images/emotes/'+love.replace(' ', '')+'.png'" :title="love"></div>
                         <div>Likes: <img v-for="like in npc.Liked" :src="'images/emotes/'+like.replace(' ', '')+'.png'" :title="like"></div>
                         <div>Dislikes: <img v-for="dislike in npc.Disliked" :src="'images/emotes/'+dislike.replace(' ', '')+'.png'" :title="dislike"></div>
                         <div>Hates: <img v-for="hate in npc.Hated" :src="'images/emotes/'+hate.replace(' ', '')+'.png'" :title="hate"></div>
+                        <div>Loved by: <img v-for="love in npc.LovedBy" :src="'images/emotes/'+love.replace(' ', '')+'.png'" :title="love"></div>
+                        <div v-if="npc.isPrincess">Liked by: everyone</div>
+                        <div v-else>Liked by: <img v-for="like in npc.LikedBy" :src="'images/emotes/'+like.replace(' ', '')+'.png'" :title="like"></div>
+                        <div>Disliked by: <img v-for="dislike in npc.DislikedBy" :src="'images/emotes/'+dislike.replace(' ', '')+'.png'" :title="dislike"></div>
+                        <div>Hated by: <img v-for="hate in npc.HatedBy" :src="'images/emotes/'+hate.replace(' ', '')+'.png'" :title="hate"></div>
                     </div>
                 </div>
             </draggable>

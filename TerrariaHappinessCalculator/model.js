@@ -46,7 +46,7 @@ const NpcBuilder = function(npcName) {
         Disliked: [],
         Hated: [],
         town: null,
-        get happiness(){
+        get happiness() {
             let value = 100.0;
             if (!this.town) return 1000;
             
@@ -70,6 +70,21 @@ const NpcBuilder = function(npcName) {
             value = value < 75 ? 75 : value;
             value = value > 150 ? 150 : value; 
             return value.toFixed(0);
+        },
+        get isPrincess() {
+            return this.Name === Npcs.Princess;
+        },
+        get LovedBy() {
+            return NpcModels.filter(npc => npc.Loved.includes(this.Name)).map(npc => npc.Name);
+        },
+        get LikedBy() {
+            return NpcModels.filter(npc => npc.Liked.includes(this.Name)).map(npc => npc.Name);
+        },
+        get DislikedBy() {
+            return NpcModels.filter(npc => npc.Disliked.includes(this.Name)).map(npc => npc.Name);
+        },
+        get HatedBy() {
+            return NpcModels.filter(npc => npc.Hated.includes(this.Name)).map(npc => npc.Name);
         }
     };
     
