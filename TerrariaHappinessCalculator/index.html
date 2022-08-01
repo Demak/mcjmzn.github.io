@@ -87,7 +87,7 @@
         <div class="app">
             <draggable v-model="towns" group="towns" class="towns">
                 <town v-for="town in towns" :town="town" :key="town.id" @remove="evict"></town>
-                <div slot="footer" v-on:click="addTown" class="ui-frame transparent">
+                <div slot="footer" v-on:click="addTown" class="ui-frame transparent add">
                     <div>Add next town</div>
                 </div>
             </draggable>

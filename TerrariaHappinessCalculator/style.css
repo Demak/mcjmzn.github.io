@@ -170,3 +170,20 @@ a {
     min-height: 50px;
     background: #3b428b;
 }
+
+@media screen and (min-width: 1000px) {
+
+    .towns {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+    .towns .ui-frame {
+        box-sizing: border-box;
+        width: calc(50% - 2.5px);
+    }
+    .towns .add {
+        width: 100%;
+        height: 60px;
+    }
+}

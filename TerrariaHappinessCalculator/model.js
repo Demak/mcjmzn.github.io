@@ -121,6 +121,6 @@ const NpcModels = [
     new NpcBuilder(Npcs.TaxCollector).loves(Npcs.Merchant).likes(Biomes.Snow, Npcs.PartyGirl, Npcs.Princess).dislikes(Biomes.Hallow, Npcs.Demolitionist, Npcs.Mechanic).hates(Npcs.SantaClaus).build(),
     new NpcBuilder(Npcs.Cyborg).likes(Biomes.Snow, Npcs.Steampunker, Npcs.Pirate, Npcs.Stylist, Npcs.Princess).dislikes(Biomes.Jungle, Npcs.Zoologist).hates(Npcs.Wizard).build(),
     new NpcBuilder(Npcs.SantaClaus).likes(Npcs.Princess).loves(Biomes.Snow).hates(Biomes.Desert, Npcs.TaxCollector).build(),
-    new NpcBuilder(Npcs.Truffle).loves(Npcs.Guide).likes(Npcs.Dryad, Npcs.Princess).dislikes(Npcs.Clothier).hates(Npcs.WitchDoctor).build(),
+    new NpcBuilder(Npcs.Truffle).loves(Npcs.Guide).likes(Biomes.Mushroom, Npcs.Dryad, Npcs.Princess).dislikes(Npcs.Clothier).hates(Npcs.WitchDoctor).build(),
     new NpcBuilder(Npcs.Princess).loves(...Object.values(Npcs).filter(npc => npc !== "Princess")).build()
 ].sort((a, b) => a.Name.localeCompare(b.Name));
