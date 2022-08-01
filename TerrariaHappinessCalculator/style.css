@@ -1,6 +1,13 @@
 @font-face {font-family: "Andy"; src: url("https://db.onlinewebfonts.com/t/775c3814e9c1f228d495333e07580d59.eot"); src: url("https://db.onlinewebfonts.com/t/775c3814e9c1f228d495333e07580d59.eot?#iefix") format("embedded-opentype"), url("https://db.onlinewebfonts.com/t/775c3814e9c1f228d495333e07580d59.woff2") format("woff2"), url("https://db.onlinewebfonts.com/t/775c3814e9c1f228d495333e07580d59.woff") format("woff"), url("https://db.onlinewebfonts.com/t/775c3814e9c1f228d495333e07580d59.ttf") format("truetype"), url("https://db.onlinewebfonts.com/t/775c3814e9c1f228d495333e07580d59.svg#Andy") format("svg"); }
 
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
 body {
+    display: flex;
+    flex-direction: column;
     background-color: #293c6a;
     font-family: 'Andy';
     color: white;
@@ -116,16 +123,19 @@ a {
     }
 
 .header {
+    padding: 5px;
     font-size: 18px;
 }
 
 .app {
     display: flex;
-    align-items: flex-start;
+    min-height: 0px;
+    padding: 5px;
 }
 
 .towns {
     flex-grow: 1;
+    overflow: auto;
 }
 
 .biomes img {
@@ -136,6 +146,7 @@ a {
     display: flex;
     flex-wrap: wrap;
     flex-shrink: 0;
+    align-self: flex-start;
     width: 250px;
     margin-top: 5px;
     margin-left: 5px;
